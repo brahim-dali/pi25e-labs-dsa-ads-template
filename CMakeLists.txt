@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.16)
+project(pi25-labs-dsa-ads LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+add_subdirectory(week01_dynamic_array)
+add_subdirectory(week02_stack_queue_deque)
+add_subdirectory(week03_linked_list)
+add_subdirectory(week04_binary_tree_traversal)
+add_subdirectory(week05_bst)
+add_subdirectory(week06_graphs)
+add_subdirectory(week07_sorting_basic)
+add_subdirectory(week08_quicksort)
+add_subdirectory(week09_heap)
+add_subdirectory(week10_hash_table)
+add_subdirectory(project)
