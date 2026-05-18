@@ -9,7 +9,6 @@
 
 namespace dsa {
 
-    // Max-Heap (priority queue)
     template <class T>
     class Heap {
     public:
@@ -24,12 +23,21 @@ namespace dsa {
         }
 
         void push(const T& value) {
-            // TODO: push_back then sift_up
-            (void)value;
+            data_.push_back(value);
+            sift_up(data_.size() - 1);
         }
 
         void pop() {
-            // TODO: swap root with last, pop_back, sift_down
+            if (empty()) {
+                throw std::out_of_range("Heap::pop on empty heap");
+            }
+
+            data_[0] = data_[data_.size() - 1];
+            data_.pop_back();
+
+            if (!empty()) {
+                sift_down(0);
+            }
         }
 
     private:
@@ -38,13 +46,39 @@ namespace dsa {
         static std::size_t right(std::size_t i) { return 2 * i + 2; }
 
         void sift_up(std::size_t i) {
-            // TODO
-            (void)i;
+            while (i > 0 && data_[parent(i)] < data_[i]) {
+                T temp = data_[i];
+                data_[i] = data_[parent(i)];
+                data_[parent(i)] = temp;
+
+                i = parent(i);
+            }
         }
 
         void sift_down(std::size_t i) {
-            // TODO
-            (void)i;
+            while (true) {
+                std::size_t largest = i;
+                std::size_t l = left(i);
+                std::size_t r = right(i);
+
+                if (l < data_.size() && data_[l] > data_[largest]) {
+                    largest = l;
+                }
+
+                if (r < data_.size() && data_[r] > data_[largest]) {
+                    largest = r;
+                }
+
+                if (largest == i) {
+                    break;
+                }
+
+                T temp = data_[i];
+                data_[i] = data_[largest];
+                data_[largest] = temp;
+
+                i = largest;
+            }
         }
 
     private:
