@@ -19,47 +19,159 @@ namespace dsa {
         };
 
     public:
-        BST();
-        ~BST();
+        BST() : root_(nullptr), size_(0) {}
+
+        ~BST() {
+            clear();
+        }
 
         BST(const BST&) = delete;
         BST& operator=(const BST&) = delete;
 
-        bool empty() const;
-        std::size_t size() const;
+        bool empty() const {
+            return size_ == 0;
+        }
 
-        bool contains(const T& key) const;
+        std::size_t size() const {
+            return size_;
+        }
 
-        // Insert: ignore duplicates (do not increase size)
-        void insert(const T& key);
+        bool contains(const T& key) const {
+            return contains(root_, key);
+        }
 
-        // Remove: returns true if removed, false if not found
-        bool remove(const T& key);
+        void insert(const T& key) {
+            bool inserted = false;
+            root_ = insert(root_, key, inserted);
+            if (inserted) size_++;
+        }
 
-        const T& min() const; // throws if empty
-        const T& max() const; // throws if empty
+        bool remove(const T& key) {
+            bool removed = false;
+            root_ = remove(root_, key, removed);
+            if (removed) size_--;
+            return removed;
+        }
 
-        // Writes keys in sorted order into out[0..size-1]
-        void inorder(T* out) const;
+        const T& min() const {
+            if (!root_) throw std::out_of_range("empty");
+            return min(root_);
+        }
 
-        std::size_t height() const; // empty=0, leaf=1
+        const T& max() const {
+            if (!root_) throw std::out_of_range("empty");
+            return max(root_);
+        }
 
-        void clear();
+        void inorder(T* out) const {
+            std::size_t idx = 0;
+            inorder(root_, out, idx);
+        }
+
+        std::size_t height() const {
+            return height(root_);
+        }
+
+        void clear() {
+            clear(root_);
+            root_ = nullptr;
+            size_ = 0;
+        }
 
     private:
-        Node* insert(Node* node, const T& key, bool& inserted);
-        bool contains(Node* node, const T& key) const;
+        Node* insert(Node* node, const T& key, bool& inserted) {
+            if (!node) {
+                inserted = true;
+                return new Node(key);
+            }
+            if (key < node->key)
+                node->left = insert(node->left, key, inserted);
+            else if (key > node->key)
+                node->right = insert(node->right, key, inserted);
+            return node;
+        }
 
-        Node* remove(Node* node, const T& key, bool& removed);
-        Node* find_min_node(Node* node) const;
+        bool contains(Node* node, const T& key) const {
+            if (!node) return false;
+            if (key == node->key) return true;
+            if (key < node->key)
+                return contains(node->left, key);
+            return contains(node->right, key);
+        }
 
-        const T& min(Node* node) const;
-        const T& max(Node* node) const;
+        Node* remove(Node* node, const T& key, bool& removed) {
+            if (!node) return nullptr;
 
-        void inorder(Node* node, T* out, std::size_t& idx) const;
+            if (key < node->key) {
+                node->left = remove(node->left, key, removed);
+            } else if (key > node->key) {
+                node->right = remove(node->right, key, removed);
+            } else {
+                removed = true;
 
-        std::size_t height(Node* node) const;
-        void clear(Node* node);
+                if (!node->left && !node->right) {
+                    delete node;
+                    return nullptr;
+                }
+
+                if (!node->left) {
+                    Node* temp = node->right;
+                    delete node;
+                    return temp;
+                }
+
+                if (!node->right) {
+                    Node* temp = node->left;
+                    delete node;
+                    return temp;
+                }
+
+                Node* successor = find_min_node(node->right);
+                node->key = successor->key;
+                node->right = remove(node->right, successor->key, removed);
+            }
+
+            return node;
+        }
+
+        Node* find_min_node(Node* node) const {
+            while (node->left)
+                node = node->left;
+            return node;
+        }
+
+        const T& min(Node* node) const {
+            while (node->left)
+                node = node->left;
+            return node->key;
+        }
+
+        const T& max(Node* node) const {
+            while (node->right)
+                node = node->right;
+            return node->key;
+        }
+
+        void inorder(Node* node, T* out, std::size_t& idx) const {
+            if (!node) return;
+            inorder(node->left, out, idx);
+            out[idx++] = node->key;
+            inorder(node->right, out, idx);
+        }
+
+        std::size_t height(Node* node) const {
+            if (!node) return 0;
+            std::size_t l = height(node->left);
+            std::size_t r = height(node->right);
+            return 1 + (l > r ? l : r);
+        }
+
+        void clear(Node* node) {
+            if (!node) return;
+            clear(node->left);
+            clear(node->right);
+            delete node;
+        }
 
     private:
         Node* root_;
