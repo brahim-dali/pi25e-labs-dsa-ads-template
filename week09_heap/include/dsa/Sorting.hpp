@@ -7,25 +7,47 @@
 
 namespace dsa {
 
-    // heapify_down: fixes heap property in arr[0..n-1] starting at i
     template <class T>
     void heapify_down(T* arr, int n, int i) {
-        // TODO
-        (void)arr; (void)n; (void)i;
+        int largest = i;
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+
+        if (left < n && arr[left] > arr[largest]) {
+            largest = left;
+        }
+
+        if (right < n && arr[right] > arr[largest]) {
+            largest = right;
+        }
+
+        if (largest != i) {
+            T temp = arr[i];
+            arr[i] = arr[largest];
+            arr[largest] = temp;
+
+            heapify_down(arr, n, largest);
+        }
     }
 
-    // build_heap: bottom-up O(n)
     template <class T>
     void build_heap(T* arr, int n) {
-        // TODO
-        (void)arr; (void)n;
+        for (int i = n / 2 - 1; i >= 0; --i) {
+            heapify_down(arr, n, i);
+        }
     }
 
-    // heapsort: O(n log n)
     template <class T>
     void heapsort(T* arr, int n) {
-        // TODO
-        (void)arr; (void)n;
+        build_heap(arr, n);
+
+        for (int i = n - 1; i > 0; --i) {
+            T temp = arr[0];
+            arr[0] = arr[i];
+            arr[i] = temp;
+
+            heapify_down(arr, i, 0);
+        }
     }
 
 } // namespace dsa
